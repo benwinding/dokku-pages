@@ -1,0 +1,17 @@
+{
+  "name": "dokku-pages",
+  "version": "1.0.0",
+  "bin": {
+    "dokku-pages": "cli-entry.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "commander": "5.x",
+    "rimraf": "^3.0.2",
+    "shelljs": "^0.8.4"
+  },
+  "devDependencies": {
+    "@types/commander": "^2.12.2"
+  }
+}
