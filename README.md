@@ -49,7 +49,7 @@ Commands:
   - git
   - ssh
 - You need to have ssh access to the dokku instance
-- 
+- The app needs to exist on the dokku instance
 
 ## Inspiration
 
