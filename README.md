@@ -12,6 +12,15 @@ npm i -g dokku-pages
 ```
 dokku-pages deploy -g dokku@mysite.com:myapp -p dist
 ```
+### Minimal Containers
+By adding the `--minimal` flag, you can dramatically decrease container footprint.
+
+| Deploy Command        | Dokku Type | Image Size  |
+| ------------- | --- | ------------- |
+| `deploy ...` | Herokuish Build Pack | 1.5 GB |
+| `deploy ... --minimal` | Docker Build | 22 MB |
+
+That's a saving of `98.5%`!
 
 ### Help
 ```
