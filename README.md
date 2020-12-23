@@ -13,23 +13,6 @@ npm i -g dokku-pages
 dokku-pages deploy -g dokku@mysite.com:myapp -p dist
 ```
 
-### Per Project Usage
-
-Add it to your project
-```
-npm install -D dokku-pages
-```
-In your `package.json`
-``` json
-{
-  "scripts": {
-    ...,
-    "deploy": "dokku-pages deploy -g dokku@mysite.com:myapp -p dist"
-    ...,
-  }
-}
-```
-
 ### Help
 ```
 Usage: dokku-pages [options] [command]
