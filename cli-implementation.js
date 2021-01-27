@@ -18,8 +18,9 @@ commander
     "--minimal",
     "Use minimal docker image instead of herokuish buildpack"
   )
+  .option("--allow-cors <domain>", "Allow CORS for a domain (example.com or *)")
   .action((options) => {
-    const { giturl, dist, minimal } = options;
+    const { giturl, dist, minimal, allowCors } = options;
     if (!checkIsGitUrl(giturl)) {
       console.log(chalk.red('--giturl must of the format "user@host:app"'));
       console.log(chalk.red("  example:    dokku@example.com:myapp"));
@@ -29,6 +30,7 @@ commander
     const tempPrefix = path.join(os.tmpdir(), "dokku-pages-");
     const tempDir = fs.mkdtempSync(tempPrefix);
     const [dokkuUserHost, dokkuApp] = giturl.split(":");
+    const tempDirConfPath = path.join(tempDir, "default.conf");
 
     console.log(
       chalk.green(`============================
@@ -42,13 +44,15 @@ commander
     dokku app = ${dokkuApp}
       app dir = ${distFull}
      temp dir = ${tempDir}
+    temp conf = ${tempDirConfPath}
 `)
     );
 
     if (minimal) {
-      HandleMinimalDockerImage(dokkuUserHost, dokkuApp, tempDir);
+      HandleMinimalDockerImage(tempDir);
+      SetCorsToConfig(allowCors, tempDirConfPath);
     } else {
-      HandleNormalStaticServer(dokkuUserHost, dokkuApp, tempDir);
+      HandleNormalStaticServer(tempDir);
     }
 
     CopyDistToTempPublic(distFull, tempDir);
@@ -76,17 +80,27 @@ function PushToDokku(giturl, tempDir) {
   execTemp(`git push -f ${remoteBranch} master`);
 }
 
-function HandleNormalStaticServer(dokkuUserHost, dokkuApp, tempDir) {
-  // const dokkuCmdSetMinimal = `ssh ${dokkuUserHost} config:set --no-restart ${dokkuApp} DOKKU_PROXY_PORT_MAP="http\\:80\\:5000\\ https\\:443\\:5000"`;
-  // sh.exec(dokkuCmdSetMinimal);
+function HandleNormalStaticServer(tempDir) {
   sh.cp("-R", path.join(__dirname, "deploy-src", "*"), tempDir);
 }
 
-function HandleMinimalDockerImage(dokkuUserHost, dokkuApp, tempDir) {
-  // const dokkuCmdSetMinimal = `ssh ${dokkuUserHost} config:set --no-restart ${dokkuApp} DOKKU_PROXY_PORT_MAP="http\\:80\\:5000\\ https\\:443\\:5000"`;
-  // const dokkuCmdSetMinimal = `ssh ${dokkuUserHost} config:unset --no-restart ${dokkuApp} DOKKU_PROXY_PORT_MAP`;
-  // sh.exec(dokkuCmdSetMinimal);
+function HandleMinimalDockerImage(tempDir) {
   sh.cp("-R", path.join(__dirname, "deploy-minimal", "*"), tempDir);
+}
+
+function SetCorsToConfig(allowCorsDomain, nginxConfigPath) {
+  const corsConfigText = !!allowCorsDomain
+    ? `
+  add_header 'Access-Control-Allow-Origin' '${allowCorsDomain}';
+  add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+  add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+  add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
+`
+    : "";
+  const file = fs.readFileSync(nginxConfigPath).toString();
+  const fileNew = file.replace('CORS_CONFIG', corsConfigText);
+  console.log(chalk.green(fileNew));
+  fs.writeFileSync(nginxConfigPath, fileNew);
 }
 
 function CopyDistToTempPublic(distFull, tempDir) {

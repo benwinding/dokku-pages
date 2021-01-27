@@ -31,7 +31,29 @@ Options:
 
 Commands:
   deploy [options]  Deploys this library to your dokku
+    -g, --giturl <giturl>   The dokku git url (eg: user@host:app)
+    -d, --dist <directory>  The static directory
+    --minimal               Use minimal docker image instead of herokuish buildpack
+    --allow-cors <domain>   Allow CORS for a domain (example.com or *)
+    -h, --help              display help for command
+
   help [command]    display help for command
+
+```
+
+### CORS on certain paths
+
+This library uses the same configuration file that [Google Cloud uses](https://cloud.google.com/storage/docs/gsutil/commands/cors). 
+
+Save a json file in the folder that `dokku-pages` is run in, with the following example.
+
+```
+
+```
+
+To give ALL domains CORS access (not advised), you can use:
+
+```
 ```
 
 ## Notes
