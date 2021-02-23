@@ -18,9 +18,9 @@ By adding the `--minimal` flag, you can dramatically decrease container footprin
 | Deploy Command        | Dokku Type | Image Size  |
 | ------------- | --- | ------------- |
 | `deploy ...` | Herokuish Build Pack | 1.5 GB |
-| `deploy ... --minimal` | Docker Build | 22 MB |
+| `deploy ... --minimal` | Docker Build | 55 MB |
 
-That's a saving of `98.5%`!
+That's a saving of `96.4%`!
 
 ### Help
 ```
