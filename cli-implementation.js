@@ -16,9 +16,9 @@ commander
   .requiredOption("-d, --dist <directory>", "The static directory")
   .option(
     "--minimal",
-    "Use minimal docker image instead of herokuish buildpack"
+    "Use minimal docker image instead of herokuish buildpack (96% smaller!)"
   )
-  .option("--allow-cors <domain>", "Allow CORS for a domain (example.com or *)")
+  .option("--allow-cors <domain>", "Allow CORS for a domain ('example.com' OR 'example.com|localhost|another.com' OR '*')")
   .action((options) => {
     const { giturl, dist, minimal, allowCors } = options;
     if (!checkIsGitUrl(giturl)) {
@@ -90,11 +90,12 @@ function HandleMinimalDockerImage(tempDir) {
 
 function SetCorsToConfig(allowCorsDomain, nginxConfigPath) {
   const corsConfigText = !!allowCorsDomain
-    ? `
-  add_header 'Access-Control-Allow-Origin' '${allowCorsDomain}';
-  add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
-  add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
-  add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
+    ? `SetEnvIf Origin "http(s)?://(www\.)?(${allowCorsDomain.split('.').join('\\.')})$" AccessControlAllowOrigin=$0
+    Header add Access-Control-Allow-Origin %{AccessControlAllowOrigin}e env=AccessControlAllowOrigin
+    Header add Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header add Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range"
+    Header add Access-Control-Expose-Headers "Content-Length,Content-Range"
+    Header merge Vary Origin
 `
     : "";
   const file = fs.readFileSync(nginxConfigPath).toString();
