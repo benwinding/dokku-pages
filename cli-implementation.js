@@ -90,7 +90,7 @@ function HandleMinimalDockerImage(tempDir) {
 
 function SetCorsToConfig(allowCorsDomain, nginxConfigPath) {
   const corsConfigText = !!allowCorsDomain
-    ? `SetEnvIf Origin "http(s)?://(www\.)?(${allowCorsDomain.split('.').join('\\.')})$" AccessControlAllowOrigin=$0
+    ? `SetEnvIf Origin "http(s)?://(www\.)?(${allowCorsDomain})$" AccessControlAllowOrigin=$0
     Header add Access-Control-Allow-Origin %{AccessControlAllowOrigin}e env=AccessControlAllowOrigin
     Header add Access-Control-Allow-Methods "GET, POST, OPTIONS"
     Header add Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range"
