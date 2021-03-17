@@ -1,4 +1,10 @@
 # dokku-pages
+<!-- [START badges] -->
+[![NPM Version](https://img.shields.io/npm/v/dokku-pages.svg)](https://www.npmjs.com/package/dokku-pages) 
+[![License](https://img.shields.io/npm/l/dokku-pages.svg)](https://github.com/benwinding/dokku-pages/blob/master/LICENSE) 
+[![Downloads/week](https://img.shields.io/npm/dm/dokku-pages.svg)](https://www.npmjs.com/package/dokku-pages) 
+[![Github Issues](https://img.shields.io/github/issues/benwinding/dokku-pages.svg)](https://github.com/benwinding/dokku-pages)
+<!-- [END badges] -->
 
 A simple way to deploy a static site to [dokku](https://github.com/dokku/dokku).
 
