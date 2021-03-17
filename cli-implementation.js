@@ -18,9 +18,21 @@ commander
     "--minimal",
     "Use minimal docker image instead of herokuish buildpack (96% smaller!)"
   )
-  .option("--allow-cors <domain>", "Allow CORS for a domain ('example.com' OR 'example.com|localhost|another.com' OR '*')")
+  .option("--dry-run", "Only build the image, won't deploy to dokku")
+  .option(
+    "--allow-cors <domains>",
+    `Allow CORS for a domains 
+
+  CORS Example Arguments:
+   '*'                ANY domain
+   'a1.com'           a1.com OR www.a2.com
+   'a1.com|a2.com'    a1.com OR a2.com
+   '.+\\.example.com'  ANY subdomain of example.com
+   'localhost:.+'     ANY port on localhost
+`
+  )
   .action((options) => {
-    const { giturl, dist, minimal, allowCors } = options;
+    const { giturl, dist, minimal, allowCors, dryRun } = options;
     if (!checkIsGitUrl(giturl)) {
       console.log(chalk.red('--giturl must of the format "user@host:app"'));
       console.log(chalk.red("  example:    dokku@example.com:myapp"));
@@ -57,8 +69,9 @@ commander
 
     CopyDistToTempPublic(distFull, tempDir);
 
-    PushToDokku(giturl, tempDir);
-
+    if (!dryRun) {
+      PushToDokku(giturl, tempDir);
+    }
     rimraf(tempDir, (err) => {
       if (err) {
         console.log(chalk.red(err));
@@ -89,17 +102,19 @@ function HandleMinimalDockerImage(tempDir) {
 }
 
 function SetCorsToConfig(allowCorsDomain, nginxConfigPath) {
-  const corsConfigText = !!allowCorsDomain
-    ? `SetEnvIf Origin "http(s)?://(www\.)?(${allowCorsDomain})$" AccessControlAllowOrigin=$0
-    Header add Access-Control-Allow-Origin %{AccessControlAllowOrigin}e env=AccessControlAllowOrigin
+  const hasCors = !!allowCorsDomain;
+  let corsConfigText = "";
+  if (hasCors) {
+    corsConfigText = `
+    SetEnvIf Origin "http(s)?://(www\.)?(${allowCorsDomain})$" CORS_ALLOW_ORIGIN=$0
+    Header add Access-Control-Allow-Origin %{CORS_ALLOW_ORIGIN}e env=CORS_ALLOW_ORIGIN
     Header add Access-Control-Allow-Methods "GET, POST, OPTIONS"
     Header add Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range"
     Header add Access-Control-Expose-Headers "Content-Length,Content-Range"
-    Header merge Vary Origin
-`
-    : "";
+    Header merge Vary Origin`;
+  }
   const file = fs.readFileSync(nginxConfigPath).toString();
-  const fileNew = file.replace('CORS_CONFIG', corsConfigText);
+  const fileNew = file.replace("CORS_CONFIG", corsConfigText);
   console.log(chalk.green(fileNew));
   fs.writeFileSync(nginxConfigPath, fileNew);
 }
