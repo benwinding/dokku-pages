@@ -86,7 +86,7 @@ function PushToDokku(giturl, tempDir) {
 
   const remoteBranch = "dokku";
 
-  execTemp("git init");
+  execTemp("git init -b master");
   execTemp("git add .");
   execTemp('git commit -am "Deploy"');
   execTemp(`git remote add ${remoteBranch} ${giturl}`);
