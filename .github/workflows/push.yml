@@ -12,7 +12,7 @@ jobs:
     - uses: actions/checkout@master
     - uses: actions/setup-node@v1
       with:
-        node-version: 16.14.2
+        node-version: 18
     - name: Cache node_modules
       id: cache-modules
       uses: actions/cache@v1
@@ -23,7 +23,7 @@ jobs:
       if: steps.cache-modules.outputs.cache-hit != 'true'
       run: npm install
     - name: Publish!
-      uses: mikeal/merge-release@master
+      uses: Github-Actions-Community/merge-release@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
